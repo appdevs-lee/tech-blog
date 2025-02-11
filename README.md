@@ -7,7 +7,7 @@
 <img width="797" alt="스크린샷 2025-02-12 오전 12 29 04" src="https://github.com/user-attachments/assets/0d6960f3-e719-44c3-acdf-ecf162ded679" />
 
 ## 시작 가이드
-#### 가상환경 설정 및 라이브러리 설치
+#### 기본 설정
 ```
 $ python -m venv venv
 $ Mac: . ./venv/bin/activate
@@ -16,7 +16,7 @@ $ pip install -r requirements.txt
 $ python manage.py makemigrations
 $ python manage.py migrate
 ```
-#### 서버 실행(택 1)
+#### 서버 실행
 ```
 $ python manage.py runserver
 ```
