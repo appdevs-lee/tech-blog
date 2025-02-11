@@ -1,0 +1,277 @@
+<!-- post_detail.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% load markdown_deux_tags %}
+
+{% block style %}
+<link rel="stylesheet" href="{% static 'css/blog.css' %}">
+<link rel="stylesheet" href="{% static 'css/blog/comment.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <article class="post-card card mb-4">
+                <!-- Post Header -->
+                <div class="card-body">
+                    <header class="mb-4">
+                        <h1 class="card-title mb-3">{{ post.title }}</h1>
+                        <div class="post-meta d-flex justify-content-between align-items-center">
+                            <div>
+                                <span><i class="far fa-user me-1"></i>{{ post.user.username }}</span>
+                                <span class="ms-3"><i class="far fa-calendar me-1"></i>{{ post.created_at|date:"Y.m.d H:i" }}</span>
+                                <span class="ms-3"><i class="far fa-eye me-1"></i>{{ post.view_count }}</span>
+                                <span class="ms-3" id="likeCount">
+                                    <i class="far fa-heart me-1"></i>{{ post.like_count }}
+                                </span>
+                            </div>
+                            {% if user == post.user %}
+                            <div>
+                                <a href="{% url 'post_update' post.pk %}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-edit me-1"></i>수정
+                                </a>
+                                <button type="button" class="btn btn-outline-danger btn-sm" 
+                                        data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                    <i class="fas fa-trash me-1"></i>삭제
+                                </button>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </header>
+
+                    <!-- Categories and Tags -->
+                    <div class="mb-4">
+                        {% if post.category %}
+                        <a href="?category={{ post.category.pk }}" class="badge bg-primary text-decoration-none">
+                            {{ post.category.name }}
+                        </a>
+                        {% endif %}
+                        {% for tag in post.tags.all %}
+                        <a href="?tag={{ tag.name }}" class="tag-badge">{{ tag.name }}</a>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Post Content -->
+                    <div class="markdown-content">
+                        {{ post.content|markdown }}
+                    </div>
+
+                    <!-- Like Button -->
+                    {% if user.is_authenticated %}
+                    <div class="mt-4 border-top pt-3">
+                        <button id="likeButton" 
+                                class="like-button {% if user in post.likes.all %}liked{% endif %}" 
+                                data-url="{% url 'post_like' post.pk %}">
+                            <i class="{% if user in post.likes.all %}fas{% else %}far{% endif %} fa-heart me-1"></i>
+                            좋아요
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+            </article>
+
+            <!-- Comments Section -->
+            <section class="comment-section">
+                <h4 class="mb-4">
+                    댓글 <span class="text-muted">({{ post.comments.count }})</span>
+                </h4>
+
+                {% if user.is_authenticated %}
+                <form id="commentForm" class="comment-form mb-4" data-url="{% url 'comment_create' post.pk %}">
+                    {% csrf_token %}
+                    <div class="form-floating mb-3">
+                        <textarea class="form-control" id="commentContent" name="content" 
+                                style="height: 100px" placeholder="댓글을 입력하세요"></textarea>
+                        <label for="commentContent">댓글을 입력하세요</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane me-1"></i>댓글 작성
+                    </button>
+                </form>
+                {% else %}
+                <div class="alert alert-info">
+                    댓글을 작성하려면 <a href="{% url 'login' %}?next={{ request.path }}">로그인</a>이 필요합니다.
+                </div>
+                {% endif %}
+
+                <div class="comments" id="commentList">
+                    {% for comment in post.comments.all %}
+                    {% include 'blog/comment_item.html' with comment=comment %}
+                    {% empty %}
+                    <div class="text-center text-muted my-4" id="noComments">
+                        <i class="far fa-comment-dots fa-2x mb-2"></i>
+                        <p>첫 번째 댓글을 작성해보세요!</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <div class="sidebar">
+                <!-- Author Info -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">작성자</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-user-circle fa-3x text-secondary me-3"></i>
+                            <div>
+                                <h6 class="mb-1">{{ post.user.username }}</h6>
+                                <p class="text-muted mb-0">
+                                    작성한 글: {{ post.user.post_set.count }}개
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Related Posts -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">관련 글</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            {% for related_post in related_posts %}
+                            <li class="mb-2">
+                                <a href="{% url 'post_detail' related_post.pk %}" 
+                                   class="text-decoration-none text-dark">
+                                    {{ related_post.title }}
+                                </a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+{% include 'blog/includes/delete_modal.html' %}
+
+{% endblock %}
+
+{% block script %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+<script>
+    // 게시글 ID를 전역 변수로 설정
+    const postId = {{ post.pk }};
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize syntax highlighting
+    hljs.highlightAll();
+    
+    // Like button functionality
+    const likeButton = document.getElementById('likeButton');
+    if (likeButton) {
+        likeButton.addEventListener('click', handleLikeClick);
+    }
+    
+    // Comment form handling
+    const commentForm = document.getElementById('commentForm');
+    if (commentForm) {
+        commentForm.addEventListener('submit', handleCommentSubmit);
+    }
+});
+
+function handleLikeClick() {
+    const likeUrl = this.dataset.url || `{% url 'post_like' post.pk %}`;
+    fetch(likeUrl, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        updateLikeUI(data);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('좋아요 처리 중 오류가 발생했습니다.');
+    });
+}
+
+function updateLikeUI(data) {
+    document.getElementById('likeCount').innerHTML = 
+        `<i class="far fa-heart me-1"></i>${data.count}`;
+    
+    const likeButton = document.getElementById('likeButton');
+    if (data.liked) {
+        likeButton.innerHTML = '<i class="fas fa-heart me-1"></i>좋아요';
+        likeButton.classList.add('liked');
+    } else {
+        likeButton.innerHTML = '<i class="far fa-heart me-1"></i>좋아요';
+        likeButton.classList.remove('liked');
+    }
+}
+
+function handleCommentSubmit(e) {
+    e.preventDefault();
+    
+    const content = document.getElementById('commentContent').value;
+    if (!content.trim()) {
+        alert('댓글 내용을 입력해주세요.');
+        return;
+    }
+
+    submitComment(this);
+}
+
+function submitComment(form) {
+    const url = form.getAttribute('data-url') || `/comment/${postId}/create/`;
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+        body: new FormData(form)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            handleCommentSuccess(data);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('댓글 작성 중 오류가 발생했습니다.');
+    });
+}
+
+function handleCommentSuccess(data) {
+    const commentList = document.getElementById('commentList');
+    const noComments = document.getElementById('noComments');
+    
+    if (noComments) {
+        noComments.remove();
+    }
+    
+    commentList.insertAdjacentHTML('afterbegin', data.comment_html);
+    document.getElementById('commentForm').reset();
+    
+    updateCommentCount(data.comment_count);
+    scrollToNewComment();
+}
+
+function updateCommentCount(count) {
+    document.querySelector('.comment-section h4 span').textContent = `(${count})`;
+}
+
+function scrollToNewComment() {
+    const newComment = document.querySelector('.comment-item');
+    newComment.scrollIntoView({ behavior: 'smooth' });
+    newComment.classList.add('highlight');
+    setTimeout(() => {
+        newComment.classList.remove('highlight');
+    }, 2000);
+}
+</script>
+{% endblock %}

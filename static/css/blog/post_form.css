@@ -1,0 +1,80 @@
+/* post_form.css */
+.form-card {
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .preview-switch {
+    position: relative;
+  }
+  
+  .preview-switch .btn {
+    min-width: 120px;
+  }
+  
+  /* EasyMDE Customization */
+  .EasyMDEContainer {
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+  }
+  
+  .editor-toolbar {
+    border: none;
+    border-bottom: 1px solid var(--border-color);
+    border-radius: 0.375rem 0.375rem 0 0;
+    background-color: #f8fafc;
+  }
+  
+  .CodeMirror {
+    border: none !important;
+    border-radius: 0 0 0.375rem 0.375rem;
+  }
+  
+  .editor-preview {
+    background-color: white;
+    padding: 1rem;
+  }
+  
+  /* Select2 Customization */
+  .select2-container--default .select2-selection--multiple {
+    border-color: var(--border-color);
+    border-radius: 0.375rem;
+  }
+  
+  .select2-container--default.select2-container--focus .select2-selection--multiple {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+  }
+  
+  .select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background-color: #f1f5f9;
+    border: none;
+    border-radius: 1rem;
+    padding: 0.25rem 0.75rem;
+  }
+  
+  /* Markdown Guide Section */
+  .markdown-guide {
+    background-color: #f8fafc;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .markdown-guide h5 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+  }
+  
+  .markdown-guide code {
+    background-color: #f1f5f9;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+  }
+  
+  .markdown-guide .example {
+    border-left: 3px solid var(--primary-color);
+    padding-left: 1rem;
+    margin: 0.5rem 0;
+  }

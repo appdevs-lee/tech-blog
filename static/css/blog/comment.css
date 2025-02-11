@@ -1,0 +1,67 @@
+/* comment.css */
+.comment-section {
+    margin-top: 3rem;
+  }
+  
+  .comment-item {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  .comment-item:last-child {
+    border-bottom: none;
+  }
+  
+  .comment-item .avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f1f5f9;
+  }
+  
+  .comment-header {
+    font-size: 0.875rem;
+  }
+  
+  .comment-content {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
+  
+  .comment-form textarea {
+    border: 1px solid var(--border-color);
+    resize: vertical;
+  }
+  
+  .comment-form textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+  }
+  
+  .highlight {
+    animation: highlightFade 2s ease-out;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes highlightFade {
+    0% {
+      background-color: rgba(59, 130, 246, 0.1);
+    }
+    100% {
+      background-color: transparent;
+    }
+  }
