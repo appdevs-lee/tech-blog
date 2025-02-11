@@ -1,0 +1,289 @@
+<!-- post_form.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block style %}
+<link rel="stylesheet" href="{% static 'css/blog.css' %}">
+<link rel="stylesheet" href="{% static 'css/blog/post_form.css' %}">
+<link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="form-card p-4">
+                <!-- Form Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="mb-0">
+                        {% if form.instance.pk %}
+                        게시글 수정
+                        {% else %}
+                        새 게시글 작성
+                        {% endif %}
+                    </h2>
+                    <div class="preview-switch">
+                        <button type="button" class="btn btn-primary" id="previewToggle">
+                            <i class="fas fa-eye me-1"></i>미리보기
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Post Form -->
+                <form method="post" id="postForm">
+                    {% csrf_token %}
+                    
+                    <!-- Title Field -->
+                    <div class="mb-4">
+                        <label for="{{ form.title.id_for_label }}" class="form-label">제목</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.title.errors|join:" " }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Category Field -->
+                    <div class="mb-4">
+                        <label for="{{ form.category.id_for_label }}" class="form-label">카테고리</label>
+                        {{ form.category }}
+                        {% if form.category.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.category.errors|join:" " }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Tags Field -->
+                    <div class="mb-4">
+                        <label for="{{ form.tags.id_for_label }}" class="form-label">태그</label>
+                        {{ form.tags }}
+                        <div class="form-text">쉼표나 엔터로 태그를 구분할 수 있습니다.</div>
+                        {% if form.tags.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.tags.errors|join:" " }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Content Field -->
+                    <div class="mb-4">
+                        <label for="{{ form.content.id_for_label }}" class="form-label">내용</label>
+                        <textarea name="content" id="{{ form.content.id_for_label }}" 
+                                  class="form-control" rows="20" 
+                                  placeholder="내용을 입력하세요">{{ form.content.value|default:'' }}</textarea>
+                        {% if form.content.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.content.errors|join:" " }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Markdown Guide -->
+                    <div class="markdown-guide">
+                        <h5><i class="fas fa-book me-2"></i>마크다운 가이드</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>기본 문법</h6>
+                                <div class="example">
+                                    <code># 제목 1</code>
+                                    <code>## 제목 2</code>
+                                    <code>### 제목 3</code>
+                                </div>
+                                <div class="example">
+                                    <code>**굵게**</code>
+                                    <code>*기울임*</code>
+                                    <code>~~취소선~~</code>
+                                </div>
+                                <div class="example">
+                                    <code>[링크텍스트](URL)</code>
+                                    <code>![이미지설명](이미지URL)</code>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>코드 & 인용</h6>
+                                <div class="example">
+                                    <code>`인라인 코드`</code>
+                                </div>
+                                <div class="example">
+                                    <code>```python
+코드 블록
+```</code>
+                                </div>
+                                <div class="example">
+                                    <code>> 인용문</code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Save Indicator -->
+                    <div id="savingIndicator" class="d-none">
+                        <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                            <span class="visually-hidden">저장 중...</span>
+                        </div>
+                        <span class="text-muted">저장 중...</span>
+                    </div>
+
+                    <!-- Form Buttons -->
+                    <div class="d-flex justify-content-between mt-4">
+                        <button type="button" class="btn btn-secondary" onclick="history.back()">
+                            <i class="fas fa-arrow-left me-1"></i>돌아가기
+                        </button>
+                        <div>
+                            <button type="button" class="btn btn-outline-primary me-2" id="saveButton">
+                                <i class="fas fa-save me-1"></i>임시저장
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-check me-1"></i>발행하기
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize EasyMDE
+    const easyMDE = initializeEasyMDE();
+    
+    // Initialize Select2
+    initializeSelect2();
+    
+    // Setup form event handlers
+    setupFormHandlers(easyMDE);
+});
+
+function initializeEasyMDE() {
+    const textArea = document.querySelector('textarea[name="content"]');
+    if (!textArea) return null;
+    
+    return new EasyMDE({
+        element: textArea,
+        spellChecker: false,
+        autosave: {
+            enabled: true,
+            uniqueId: 'blog_post_{{ form.instance.pk|default:"new" }}',
+            delay: 1000,
+        },
+        toolbar: [
+            'bold', 'italic', 'heading', '|',
+            'quote', 'code', 'unordered-list', 'ordered-list', '|',
+            'link', 'image', '|',
+            'preview', 'side-by-side', 'fullscreen', '|',
+            {
+                name: "guide",
+                action: function() {
+                    const guide = document.querySelector('.markdown-guide');
+                    guide.scrollIntoView({ behavior: 'smooth' });
+                },
+                className: "fa fa-question-circle",
+                title: "마크다운 가이드",
+            },
+        ],
+        status: false,
+        minHeight: '400px',
+    });
+}
+
+function initializeSelect2() {
+    $('.select2').select2({
+        tags: true,
+        tokenSeparators: [',', ' '],
+        placeholder: '태그를 입력하세요',
+        allowClear: true,
+        language: {
+            noResults: function() {
+                return "결과가 없습니다";
+            }
+        }
+    });
+}
+
+function setupFormHandlers(easyMDE) {
+    // Preview toggle
+    const previewToggle = document.getElementById('previewToggle');
+    if (previewToggle && easyMDE) {
+        previewToggle.addEventListener('click', function() {
+            const isPreview = this.classList.contains('active');
+            easyMDE.togglePreview();
+            this.classList.toggle('active');
+            this.innerHTML = isPreview ? 
+                '<i class="fas fa-eye me-1"></i>미리보기' : 
+                '<i class="fas fa-edit me-1"></i>편집하기';
+        });
+    }
+
+    // Temporary save
+    const saveButton = document.getElementById('saveButton');
+    if (saveButton) {
+        saveButton.addEventListener('click', handleTemporarySave);
+    }
+
+    // Form submission
+    const postForm = document.getElementById('postForm');
+    if (postForm) {
+        postForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 에디터 내용을 원래 textarea에 복사
+            const content = easyMDE.value();
+            const textarea = document.querySelector('textarea[name="content"]');
+            textarea.value = content;
+            
+            // 폼 유효성 검사
+            if (!textarea.value.trim()) {
+                alert('내용을 입력해주세요.');
+                easyMDE.codemirror.focus();
+                return;
+            }
+            
+            // 발행 확인
+            if (confirm('게시글을 발행하시겠습니까?')) {
+                postForm.submit();
+            }
+        });
+    }
+}
+
+function handleTemporarySave() {
+    const savingIndicator = document.getElementById('savingIndicator');
+    savingIndicator.classList.remove('d-none');
+    
+    // 임시저장 로직 구현
+    setTimeout(() => {
+        savingIndicator.classList.add('d-none');
+        alert('임시저장되었습니다.');
+    }, 1000);
+}
+
+function setupFormChangeDetection(easyMDE) {
+    let formChanged = false;
+    
+    if (easyMDE) {
+        easyMDE.codemirror.on('change', () => { formChanged = true; });
+    }
+    
+    document.querySelectorAll('input, select').forEach(el => {
+        el.addEventListener('change', () => { formChanged = true; });
+    });
+
+    window.addEventListener('beforeunload', function(e) {
+        if (formChanged) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+}
+</script>
+{% endblock %}

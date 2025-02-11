@@ -1,0 +1,110 @@
+/* blog.css */
+:root {
+    --primary-color: #3b82f6;
+    --secondary-color: #64748b;
+    --success-color: #22c55e;
+    --danger-color: #ef4444;
+    --background-color: #f8fafc;
+    --text-color: #1e293b;
+    --border-color: #e2e8f0;
+  }
+  
+  body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+  }
+  
+  /* Card styles */
+  .post-card {
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .post-card:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* Tags */
+  .tag-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background-color: #f1f5f9;
+    color: var(--secondary-color);
+    border-radius: 1rem;
+    font-size: 0.875rem;
+    text-decoration: none;
+    margin-right: 0.5rem;
+    transition: background-color 0.2s;
+  }
+  
+  .tag-badge:hover {
+    background-color: #e2e8f0;
+    color: var(--text-color);
+  }
+  
+  /* Post meta */
+  .post-meta {
+    font-size: 0.875rem;
+    color: var(--secondary-color);
+  }
+  
+  .post-meta i {
+    margin-right: 0.25rem;
+  }
+  
+  /* Like button */
+  .like-button {
+    border: none;
+    background: none;
+    color: var(--secondary-color);
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  
+  .like-button.liked {
+    color: var(--danger-color);
+  }
+  
+  /* Markdown content */
+  .markdown-content {
+    line-height: 1.7;
+  }
+  
+  .markdown-content h1,
+  .markdown-content h2,
+  .markdown-content h3 {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .markdown-content code {
+    background-color: #f1f5f9;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+  }
+  
+  .markdown-content pre code {
+    display: block;
+    padding: 1rem;
+    overflow-x: auto;
+  }
+  
+  /* Sidebar */
+  .sidebar .card {
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Pagination */
+  .pagination .page-link {
+    color: var(--primary-color);
+    border-color: var(--border-color);
+  }
+  
+  .pagination .page-item.active .page-link {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+  }
